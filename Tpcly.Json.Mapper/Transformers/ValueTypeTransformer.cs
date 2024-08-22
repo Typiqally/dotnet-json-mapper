@@ -5,7 +5,7 @@ using Tpcly.Json.Mapper.Abstractions;
 
 namespace Tpcly.Json.Mapper.Transformers;
 
-public class TypeTransformer(SchemaValueType type) : ITransformer
+public class ValueTypeTransformer(SchemaValueType type) : ITransformer
 {
     public SchemaValueType Type { get; set; } = type;
 

@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -14,7 +13,7 @@ public class JsonMappingTransformerTypeResolver(IList<Type>? additionalTransform
         typeof(ArrayTransformer),
         typeof(NodePathTransformer),
         typeof(ObjectTransformer),
-        typeof(TypeTransformer)
+        typeof(ValueTypeTransformer)
     };
 
     private readonly IEnumerable<JsonDerivedType> _derivedTypes = (additionalTransformerTypes ?? new List<Type>())

@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Json.Schema;
-using Json.Schema.Generation;
 using Tpcly.Json.Mapper.Abstractions;
 using Tpcly.Json.Mapper.Transformers;
 
@@ -56,7 +55,7 @@ public class Tests
                 new List<ITransformer>
                 {
                     new CustomValueTransformer(),
-                    new TypeTransformer(SchemaValueType.String),
+                    new ValueTypeTransformer(SchemaValueType.String),
                     new NodePathTransformer("TestStringTwo")
                 }),
             new("TestStrings", new List<ITransformer>
