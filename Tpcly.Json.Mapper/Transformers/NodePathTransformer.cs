@@ -13,11 +13,18 @@ public class NodePathTransformer(string destinationPath) : ITransformer
 
     public void Apply(JsonNode node)
     {
-        var parent = node.Parent!.AsObject();
-        var nodeClone = JsonNode.Parse(node.ToJsonString());
-        var (destinationNode, propertyName) = parent.AsObject().TraverseOrCreate(DestinationPath, PathSeparator);
+        var nearestRootNode = node.Parent!;
+        while (nearestRootNode.Parent is JsonObject)
+        {
+            nearestRootNode = nearestRootNode.Parent;
+        }
 
-        parent.Remove(node.GetPropertyName());
+        var nearestRootObject = nearestRootNode.AsObject();
+        
+        var nodeClone = JsonNode.Parse(node.ToJsonString());
+        var (destinationNode, propertyName) = nearestRootObject.TraverseOrCreate(DestinationPath, PathSeparator);
+
+        nearestRootObject.Remove(node.GetPropertyName());
         destinationNode!.Add(propertyName, nodeClone);
     }
 }
