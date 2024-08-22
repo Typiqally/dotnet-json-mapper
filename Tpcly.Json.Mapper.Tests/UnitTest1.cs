@@ -55,7 +55,7 @@ public class Tests
                 new List<ITransformer>
                 {
                     new CustomValueTransformer(),
-                    new ValueTypeTransformer(SchemaValueType.String),
+                    new ValueKindTransformer(JsonValueKind.String),
                     new NodePathTransformer("TestStringTwo")
                 }),
             new("TestStrings", new List<ITransformer>
