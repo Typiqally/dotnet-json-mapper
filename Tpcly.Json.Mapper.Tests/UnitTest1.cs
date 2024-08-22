@@ -56,6 +56,7 @@ public class Tests
                 {
                     new CustomValueTransformer(),
                     new ValueKindTransformer(JsonValueKind.String),
+                    new StringValueTransformer(StringValueTransformer.Action.Concat, "_concat"),
                     new NodePathTransformer("TestStringTwo")
                 }),
             new("TestStrings", new List<ITransformer>
@@ -63,7 +64,11 @@ public class Tests
                 new ArrayTransformer(
                     new ObjectTransformer(new List<KeyValuePair<string, IList<ITransformer>>>
                     {
-                        new("Aaa", new List<ITransformer> { new NodePathTransformer("TestNumberString") })
+                        new("Aaa", new List<ITransformer>
+                        {
+                            new StringValueTransformer(StringValueTransformer.Action.Concat, "_concat"),
+                            new NodePathTransformer("TestNumberString")
+                        })
                     })
                 ),
                 new NodePathTransformer("ChildTwo.TestDestinationChildren")
