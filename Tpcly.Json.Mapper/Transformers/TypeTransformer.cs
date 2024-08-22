@@ -5,33 +5,18 @@ using Tpcly.Json.Mapper.Abstractions;
 
 namespace Tpcly.Json.Mapper.Transformers;
 
-public class TypeTransformer : Transformer<TypeTransformer.Rule>
+public class TypeTransformer(SchemaValueType type) : ITransformer
 {
-    public override bool CanTransform(JsonNode node, ITransformRule rule)
+    public SchemaValueType Type { get; set; } = type;
+
+    public bool CanTransform(JsonNode node) => node is JsonValue;
+
+    public void Apply(JsonNode node)
     {
-        return rule is Rule && node is JsonObject;
-    }
-
-    public override JsonNode Apply(JsonNode node, Rule rule)
-    {
-        var sourceObj = node.AsObject();
-
-        foreach (var (path, targetType) in rule.TypeMappings)
-        {
-            var (propertyNode, propertyName) = sourceObj.Traverse(path);
-            var propertyValue = propertyNode?.AsObject()[propertyName];
-
-            if (propertyValue is not JsonValue) continue;
-
-            var value = propertyValue.AsValue().GetValue<object>();
-            var test = GetValueType(targetType);
-            
-            var converter = TypeDescriptor.GetConverter(test);
-
-            propertyNode[propertyName] = JsonValue.Create(converter.ConvertTo(value, test));
-        }
-
-        return sourceObj;
+        var value = node.AsValue().GetValue<object>();
+        var valueType = GetValueType(Type);
+        var converter = TypeDescriptor.GetConverter(valueType);
+        node.ReplaceWith(JsonValue.Create(converter.ConvertTo(value, valueType)));
     }
 
     private Type GetValueType(SchemaValueType valueType)
@@ -53,10 +38,5 @@ public class TypeTransformer : Transformer<TypeTransformer.Rule>
             default:
                 throw new ArgumentOutOfRangeException(nameof(valueType), valueType, null);
         }
-    }
-    
-    public record Rule : ITransformRule
-    {
-        public Dictionary<string, SchemaValueType> TypeMappings { get; init; } = new();
     }
 }

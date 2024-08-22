@@ -1,54 +1,20 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using Tpcly.Json.Mapper.Abstractions;
 
 namespace Tpcly.Json.Mapper;
 
-public class JsonMapper
+public static class JsonMapper
 {
-    private readonly JsonMapperOptions _defaultOptions = new();
-
-    public JsonNode Map(JsonNode sourceNode, JsonMapping mapping, JsonMapperOptions? options = null)
+    public static JsonNode Map(JsonNode sourceNode, ITransformer transformer)
     {
-        // If no options are provided, use the default instance
-        options ??= _defaultOptions;
+        transformer.Apply(sourceNode);
 
-        var sourceEvalResults = mapping.SourceSchema.Evaluate(sourceNode);
-        if (!sourceEvalResults.IsValid)
-        {
-            throw new ArgumentException("Source element does not match source schema");
-        }
-
-        var activeNode = sourceNode;
-
-        foreach (var rule in mapping.Rules)
-        {
-            var transformer = options.GetTransformer(activeNode, rule);
-            activeNode = transformer.Apply(activeNode, rule);
-        }
-
-        var destEvalResults = mapping.DestinationSchema.Evaluate(activeNode);
-        if (!destEvalResults.IsValid)
-        {
-            throw new ArgumentException("Destination element does not match destination schema, something may have gone wrong during mapping");
-        }
-
-        return activeNode;
+        return sourceNode;
     }
 
-    private void SetToken(JsonObject jsonObject, string path, JsonNode value)
+    public static T? Map<T>(JsonNode sourceNode, ITransformer transformer)
     {
-        var parts = path.Split('.');
-        var current = jsonObject;
-
-        for (var i = 0; i < parts.Length - 1; i++)
-        {
-            if (!current.ContainsKey(parts[i]))
-            {
-                current[parts[i]] = new JsonObject();
-            }
-
-            current = current[parts[i]] as JsonObject;
-        }
-
-        current[parts[^1]] = value;
+        return Map(sourceNode, transformer).Deserialize<T>();
     }
 }

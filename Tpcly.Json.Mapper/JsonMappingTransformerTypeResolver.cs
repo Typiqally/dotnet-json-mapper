@@ -1,22 +1,32 @@
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Tpcly.Json.Mapper.Abstractions;
+using Tpcly.Json.Mapper.Transformers;
 
 namespace Tpcly.Json.Mapper;
 
-public class JsonMappingTransformRuleTypeResolver(JsonMapperOptions options) : DefaultJsonTypeInfoResolver
+public class JsonMappingTransformerTypeResolver(IList<Type>? additionalTransformerTypes = null) : DefaultJsonTypeInfoResolver
 {
-    private readonly IList<JsonDerivedType> _derivedTypes = options.Transformers
-        .Select(t => t.GetType().BaseType.GetGenericArguments()[0])
-        .Distinct()
-        .Select(t => new JsonDerivedType(t, t.FullName))
+    private static readonly IList<Type> DefaultTransformerTypes = new List<Type>
+    {
+        typeof(ArrayTransformer),
+        typeof(NodePathTransformer),
+        typeof(ObjectTransformer),
+        typeof(TypeTransformer)
+    };
+
+    private readonly IEnumerable<JsonDerivedType> _derivedTypes = (additionalTransformerTypes ?? new List<Type>())
+        .Concat(DefaultTransformerTypes)
+        .Select(t => new JsonDerivedType(t, t.Name))
         .ToList();
+
 
     public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
     {
         var jsonTypeInfo = base.GetTypeInfo(type, options);
-        var basePointType = typeof(ITransformRule);
+        var basePointType = typeof(ITransformer);
 
         if (jsonTypeInfo.Type != basePointType)
         {
