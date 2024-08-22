@@ -14,7 +14,8 @@ public class JsonMappingTransformerTypeResolver(IList<Type>? additionalTransform
         typeof(NodePathTransformer),
         typeof(ObjectTransformer),
         typeof(ValueKindTransformer),
-        typeof(StringValueTransformer)
+        typeof(StringValueTransformer),
+        typeof(NumberValueTransformer)
     };
 
     private readonly IEnumerable<JsonDerivedType> _derivedTypes = (additionalTransformerTypes ?? new List<Type>())

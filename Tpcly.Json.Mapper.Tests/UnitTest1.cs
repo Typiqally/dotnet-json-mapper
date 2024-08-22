@@ -54,7 +54,7 @@ public class Tests
             new("TestNumber",
                 new List<ITransformer>
                 {
-                    new CustomValueTransformer(),
+                    new NumberValueTransformer(NumberValueTransformer.Action.Multiply, 500),
                     new ValueKindTransformer(JsonValueKind.String),
                     new StringValueTransformer(StringValueTransformer.Action.Concat, "_concat"),
                     new NodePathTransformer("TestStringTwo")
